@@ -17,7 +17,7 @@ export default async function RecoveryPage() {
       <div className="dashboard-orbit one" />
       <div className="dashboard-orbit two" />
 
-      <section className="w-full max-w-[640px] rounded-[24px] border border-white/50 bg-[linear-gradient(135deg,rgba(255,251,244,0.97),rgba(255,247,230,0.93))] p-7 shadow-[0_30px_70px_-42px_rgba(23,34,67,0.18)]">
+      <section className="w-full max-w-[640px] rounded-[24px] border border-[var(--line)] bg-[var(--surface)] p-7 shadow-[0_30px_70px_-42px_rgba(23,34,67,0.18)]">
         <div className="space-y-3">
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--mustard-700)]">
             Recuperacion
@@ -40,7 +40,7 @@ export default async function RecoveryPage() {
               <input
                 name="email"
                 type="email"
-                className="w-full rounded-[12px] border border-[var(--line)] bg-[#fffaf0] px-5 py-3.5 text-[var(--foreground)]"
+                className="w-full rounded-[12px] border border-[var(--line)] bg-[var(--surface)] px-5 py-3.5 text-[var(--foreground)]"
                 required
               />
             </div>
@@ -52,7 +52,7 @@ export default async function RecoveryPage() {
               <textarea
                 name="notes"
                 rows={4}
-                className="w-full rounded-[12px] border border-[var(--line)] bg-[#fffaf0] px-5 py-3.5 text-[var(--foreground)]"
+                className="w-full rounded-[12px] border border-[var(--line)] bg-[var(--surface)] px-5 py-3.5 text-[var(--foreground)]"
                 placeholder="Ejemplo: perdi mi clave o cambie de equipo."
               />
             </div>
