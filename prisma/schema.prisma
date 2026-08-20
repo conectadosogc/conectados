@@ -1,0 +1,145 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  COORDINATOR
+  DIRIGENTE
+  MEMBER
+}
+
+enum EventStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+enum AccessRequestStatus {
+  PENDING
+  RESOLVED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  avatarUrl    String?
+  phone        String?
+  title        String?
+  bio          String?
+  passwordHash String?
+  role         UserRole  @default(MEMBER)
+  isActive     Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Coordinator {
+  id            String      @id @default(cuid())
+  code          String      @unique
+  fullName      String
+  email         String?     @unique
+  phone         String?
+  zone          String
+  province      String?
+  municipality  String?
+  neighborhood  String?
+  notes         String?
+  targetMembers Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  dirigentes    Dirigente[]
+  events        Event[]
+}
+
+model Dirigente {
+  id            String        @id @default(cuid())
+  code          String        @unique
+  fullName      String
+  email         String?       @unique
+  phone         String?
+  zone          String
+  province      String?
+  municipality  String?
+  neighborhood  String?
+  coordinatorId String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  coordinator   Coordinator   @relation(fields: [coordinatorId], references: [id], onDelete: Cascade)
+  members       Member[]
+}
+
+model Member {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  fullName    String
+  email       String?   @unique
+  phone       String?
+  zone        String
+  province    String?
+  municipality String?
+  neighborhood String?
+  dirigenteId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  dirigente   Dirigente @relation(fields: [dirigenteId], references: [id], onDelete: Cascade)
+}
+
+model Event {
+  id            String       @id @default(cuid())
+  title         String
+  description   String
+  status        EventStatus  @default(PENDING)
+  scheduledFor  DateTime
+  location      String?
+  coordinatorId String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  coordinator   Coordinator? @relation(fields: [coordinatorId], references: [id], onDelete: SetNull)
+}
+
+model OrganizationProfile {
+  id                      Int      @id @default(1)
+  businessName            String
+  businessEmail           String
+  businessPhone           String
+  taxId                   String
+  fullAddress             String
+  employeeCount           Int?
+  contactName             String
+  contactEmail            String
+  contactPhone            String
+  extraAddress            String?
+  legalRepresentativeName String?
+  legalRepresentativeId   String?
+  companyType             String?
+  website                 String?
+  publicEmail             String?
+  publicNotes             String?
+  updatedAt               DateTime @updatedAt
+}
+
+model AccessRequest {
+  id         String              @id @default(cuid())
+  email      String
+  status     AccessRequestStatus @default(PENDING)
+  notes      String?
+  resolvedAt DateTime?
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  @@index([email, status])
+}

@@ -1,0 +1,5 @@
+ALTER TABLE "User"
+ADD COLUMN "avatarUrl" TEXT,
+ADD COLUMN "phone" TEXT,
+ADD COLUMN "title" TEXT,
+ADD COLUMN "bio" TEXT;

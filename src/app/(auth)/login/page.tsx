@@ -1,0 +1,58 @@
+import { redirect } from "next/navigation";
+import { BriefcaseBusiness } from "lucide-react";
+
+import { LoginForm } from "@/components/login-form";
+import { getSessionUser } from "@/lib/auth";
+
+export default async function LoginPage() {
+  const sessionUser = await getSessionUser();
+  if (sessionUser) {
+    redirect("/panel");
+  }
+
+  return (
+    <main className="grid-hero relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-6">
+      <section className="w-full max-w-[1120px] overflow-hidden rounded-[18px] border border-[var(--line)] bg-[linear-gradient(135deg,rgba(255,252,247,0.98),rgba(255,248,235,0.94))] shadow-[0_22px_48px_-36px_rgba(25,40,79,0.18)]">
+        <div className="grid min-h-[620px] items-stretch xl:grid-cols-[1fr_0.92fr]">
+          <div className="flex items-center bg-[linear-gradient(160deg,#223684_0%,#2740b0_72%,#3a53c4_100%)] px-8 py-10 text-white lg:px-12">
+            <div className="w-full max-w-md">
+              <div className="flex items-center gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-[14px] border border-white/10 bg-white/10">
+                  <BriefcaseBusiness className="h-7 w-7" />
+                </div>
+                <div>
+                  <p className="font-display text-3xl font-semibold tracking-tight">
+                    Conectado por el Cambio
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-10">
+                <h1 className="max-w-[10ch] font-display text-4xl font-semibold leading-[0.98] tracking-tight lg:text-[4.2rem]">
+                  Acceso al sistema
+                </h1>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(255,249,238,0.96))] px-7 py-10 lg:px-10">
+            <div className="w-full max-w-md">
+              <div className="mb-6 space-y-2">
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--mustard-700)]">
+                  Ingreso
+                </p>
+                <h2 className="font-display text-[1.95rem] font-semibold tracking-tight text-[var(--foreground)] lg:text-[2.3rem]">
+                  Iniciar sesion
+                </h2>
+              </div>
+
+              <div className="rounded-[14px] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
+                <LoginForm />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
