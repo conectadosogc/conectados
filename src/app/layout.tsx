@@ -21,6 +21,10 @@ export const metadata: Metadata = {
   description: "Plataforma territorial para coordinadores, dirigentes, miembros, eventos y gestion interna.",
   metadataBase: new URL(getSiteUrl()),
   applicationName: "Conectado por el Cambio",
+  icons: {
+    icon: "/uploads/favicon.png",
+    apple: "/uploads/favicon.png",
+  },
   alternates: {
     canonical: "/login",
   },

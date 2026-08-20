@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Bell,
-  BriefcaseBusiness,
   CalendarRange,
   Compass,
   LayoutDashboard,
@@ -24,6 +23,7 @@ import { canAccessRoute } from "@/lib/permissions";
 import type { ScopeBadge, SessionUser } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { BrandLogo } from "@/components/brand-logo";
 
 const navItems = [
   { href: "/panel", label: "Panel central", icon: LayoutDashboard },
@@ -61,20 +61,8 @@ export function DashboardShell({
       <div className="mx-auto grid min-h-screen max-w-[1680px] gap-4 px-4 py-4 lg:grid-cols-[268px_1fr] lg:px-5 lg:py-5">
         <aside className="panel p-4">
           <div className="flex h-full flex-col">
-            <div className="panel-flat p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-[8px] bg-[var(--indigo-soft)] text-[var(--indigo)]">
-                  <BriefcaseBusiness className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="font-display text-2xl font-semibold tracking-tight text-[var(--foreground)]">
-                    Conectado por el Cambio
-                  </p>
-                  <p className="text-xs uppercase tracking-[0.24em] text-[var(--muted-foreground)]">
-                    Centro de gestion
-                  </p>
-                </div>
-              </div>
+            <div className="panel-flat flex min-h-[92px] items-center p-4">
+              <BrandLogo className="h-12 w-full" />
             </div>
 
             {scopeBadge ? (

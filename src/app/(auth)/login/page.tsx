@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { BriefcaseBusiness } from "lucide-react";
 
+import { BrandLogo } from "@/components/brand-logo";
 import { LoginForm } from "@/components/login-form";
 import { getSessionUser } from "@/lib/auth";
 
@@ -16,16 +16,7 @@ export default async function LoginPage() {
         <div className="grid min-h-[620px] items-stretch xl:grid-cols-[1fr_0.92fr]">
           <div className="flex items-center bg-[linear-gradient(160deg,#223684_0%,#2740b0_72%,#3a53c4_100%)] px-8 py-10 text-white lg:px-12">
             <div className="w-full max-w-md">
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-[14px] border border-white/10 bg-white/10">
-                  <BriefcaseBusiness className="h-7 w-7" />
-                </div>
-                <div>
-                  <p className="font-display text-3xl font-semibold tracking-tight">
-                    Conectado por el Cambio
-                  </p>
-                </div>
-              </div>
+              <BrandLogo className="h-16 w-full max-w-[340px]" tone="light" />
 
               <div className="mt-10">
                 <h1 className="max-w-[10ch] font-display text-4xl font-semibold leading-[0.98] tracking-tight lg:text-[4.2rem]">
