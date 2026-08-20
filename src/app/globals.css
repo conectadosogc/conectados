@@ -78,6 +78,23 @@ textarea {
     transform 160ms ease;
 }
 
+button:not(:disabled),
+a.inline-flex {
+  cursor: pointer;
+}
+
+button:not(:disabled):hover,
+a.inline-flex:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 9px 18px -16px rgba(25, 40, 79, 0.35);
+}
+
+button:not(:disabled):active,
+a.inline-flex:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
 input,
 select,
 textarea {
