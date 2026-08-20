@@ -151,13 +151,13 @@ export function DashboardShell({
               <div className="mt-4 flex items-center gap-2">
                 <Link
                   href="/ajustes"
-                  className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground)]"
+                  className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:border-[var(--indigo)] hover:bg-[var(--indigo)] hover:text-white"
                 >
                   <Settings className="h-4 w-4" />
                   Perfil
                 </Link>
                 <form action={logoutAction}>
-                  <button className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground)]">
+                  <button className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground)] hover:border-[var(--mustard)] hover:bg-[var(--mustard)] hover:text-white">
                     <LogOut className="h-4 w-4" />
                     Salir
                   </button>
