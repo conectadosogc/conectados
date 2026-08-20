@@ -17,10 +17,10 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Conectado por el Cambio",
+  title: "Conectados",
   description: "Plataforma territorial para coordinadores, dirigentes, miembros, eventos y gestion interna.",
   metadataBase: new URL(getSiteUrl()),
-  applicationName: "Conectado por el Cambio",
+  applicationName: "Conectados",
   icons: {
     icon: "/uploads/favicon.png",
     apple: "/uploads/favicon.png",
@@ -29,17 +29,17 @@ export const metadata: Metadata = {
     canonical: "/login",
   },
   openGraph: {
-    title: "Conectado por el Cambio",
+    title: "Conectados",
     description:
       "Plataforma territorial para coordinadores, dirigentes, miembros, eventos y gestion interna.",
     url: "/login",
-    siteName: "Conectado por el Cambio",
+    siteName: "Conectados",
     locale: "es_DO",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Conectado por el Cambio",
+    title: "Conectados",
     description:
       "Plataforma territorial para coordinadores, dirigentes, miembros, eventos y gestion interna.",
   },

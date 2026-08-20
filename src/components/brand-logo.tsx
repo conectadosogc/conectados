@@ -10,7 +10,7 @@ type BrandLogoProps = {
 export function BrandLogo({ className, tone = "auto" }: BrandLogoProps) {
   if (tone === "light") {
     return (
-      <div aria-label="Conectado por el Cambio" className={cn("brand-logo", className)}>
+      <div aria-label="Conectados" className={cn("brand-logo", className)}>
         <Image
           src="/uploads/logo%20en%20blanco.png"
           alt=""
@@ -24,7 +24,7 @@ export function BrandLogo({ className, tone = "auto" }: BrandLogoProps) {
   }
 
   return (
-    <div aria-label="Conectado por el Cambio" className={cn("brand-logo", className)}>
+    <div aria-label="Conectados" className={cn("brand-logo", className)}>
       <Image
         src="/uploads/logo%20a%20color%20.png"
         alt=""

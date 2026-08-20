@@ -1,4 +1,4 @@
-# Conectado por el Cambio
+# Conectados
 
 Aplicacion territorial para gestionar coordinadores, dirigentes, miembros, eventos, accesos y perfil institucional.
 

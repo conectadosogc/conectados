@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Conectado por el Cambio",
+    name: "Conectados",
     short_name: "Conectado",
     description:
       "Plataforma territorial para coordinadores, dirigentes, miembros, eventos y gestion interna.",

@@ -85,7 +85,7 @@ export function DashboardShell({
               </p>
               <p className="mt-1.5 text-base font-semibold text-[var(--foreground)]">
                 {visibleNavItems.find((item) => item.href === pathname)?.label ??
-                  "Conectado por el Cambio"}
+                  "Conectados"}
               </p>
             </div>
 

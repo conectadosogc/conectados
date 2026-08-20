@@ -8,7 +8,7 @@ export default function NotFound() {
           Pagina no encontrada
         </p>
         <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-[var(--foreground)]">
-          Esta ruta no existe en Conectado por el Cambio.
+          Esta ruta no existe en Conectados.
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted-foreground)]">
           Revisa la direccion o vuelve al panel principal si tu sesion sigue activa.
