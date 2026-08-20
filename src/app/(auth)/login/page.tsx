@@ -12,7 +12,7 @@ export default async function LoginPage() {
 
   return (
     <main className="grid-hero relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-6">
-      <section className="w-full max-w-[1120px] overflow-hidden rounded-[18px] border border-[var(--line)] bg-[linear-gradient(135deg,rgba(255,252,247,0.98),rgba(255,248,235,0.94))] shadow-[0_22px_48px_-36px_rgba(25,40,79,0.18)]">
+      <section className="w-full max-w-[1120px] overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--surface)] shadow-[0_22px_48px_-36px_rgba(25,40,79,0.18)]">
         <div className="grid min-h-[620px] items-stretch xl:grid-cols-[1fr_0.92fr]">
           <div className="flex items-center bg-[linear-gradient(160deg,#223684_0%,#2740b0_72%,#3a53c4_100%)] px-8 py-10 text-white lg:px-12">
             <div className="w-full max-w-md">
@@ -29,7 +29,7 @@ export default async function LoginPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-center bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(255,249,238,0.96))] px-7 py-10 lg:px-10">
+          <div className="flex items-center justify-center bg-[var(--surface)] px-7 py-10 lg:px-10">
             <div className="w-full max-w-md">
               <div className="mb-6 space-y-2">
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--mustard-700)]">
