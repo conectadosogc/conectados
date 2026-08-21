@@ -15,8 +15,8 @@ export function BrandLogo({ className, tone = "auto" }: BrandLogoProps) {
           src="/uploads/logo%20en%20blanco.png"
           alt=""
           className="h-full w-auto"
-          width={4400}
-          height={1142}
+          width={3600}
+          height={2400}
           sizes="(max-width: 640px) 240px, 340px"
         />
       </div>
@@ -29,16 +29,16 @@ export function BrandLogo({ className, tone = "auto" }: BrandLogoProps) {
         src="/uploads/logo%20a%20color%20.png"
         alt=""
         className="brand-logo-light h-full w-auto"
-        width={4400}
-        height={1142}
+        width={3600}
+        height={2400}
         sizes="(max-width: 640px) 240px, 340px"
       />
       <Image
         src="/uploads/logo%20en%20blanco.png"
         alt=""
         className="brand-logo-dark h-full w-auto"
-        width={4400}
-        height={1142}
+        width={3600}
+        height={2400}
         sizes="(max-width: 640px) 240px, 340px"
       />
     </div>
