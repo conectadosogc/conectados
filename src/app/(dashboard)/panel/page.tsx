@@ -42,10 +42,7 @@ export default async function DashboardPage() {
 
   const totalStructure =
     snapshot.coordinators.length + snapshot.dirigentes.length + snapshot.members.length;
-  const totalTargets = snapshot.coordinators.reduce((sum, item) => sum + item.targetMembers, 0);
   const maxCount = Math.max(...snapshot.coordinators.map((item) => item.memberCount), 1);
-  const busiestCoordinator =
-    [...snapshot.coordinators].sort((left, right) => right.memberCount - left.memberCount)[0] ?? null;
   const pendingAccessRequests = snapshot.accessRequests.filter(
     (item) => item.status === "Pendiente",
   );
@@ -80,16 +77,7 @@ export default async function DashboardPage() {
         ))}
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1fr_1fr_1fr]">
-        <InfoBlock
-          label="Meta total declarada"
-          value={String(totalTargets)}
-          detail={
-            busiestCoordinator
-              ? `Mayor carga actual: ${busiestCoordinator.fullName}`
-              : "Sin coordinaciones registradas"
-          }
-        />
+      <section className="grid gap-4 xl:grid-cols-2">
         <InfoBlock
           label="Eventos activos"
           value={String(activeEvents.length)}

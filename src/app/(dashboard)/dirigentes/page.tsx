@@ -84,6 +84,21 @@ export default async function DirigentesPage(props: PageProps<"/dirigentes">) {
             minLength={4}
             maxLength={80}
           />
+          <input
+            name="alias"
+            placeholder="Apodo o alias (opcional)"
+            defaultValue={selected?.alias ?? ""}
+            className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
+            maxLength={60}
+          />
+          <input
+            name="nationalId"
+            placeholder="Cedula (000-0000000-0)"
+            defaultValue={selected?.nationalId ?? ""}
+            className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
+            inputMode="numeric"
+            required
+          />
           <select
             name="coordinatorId"
             className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
@@ -156,7 +171,7 @@ export default async function DirigentesPage(props: PageProps<"/dirigentes">) {
                 <tr key={item.id} className="border-t border-[var(--line)] text-sm">
                   <td className="px-6 py-4 text-[var(--muted-foreground)]">{item.code}</td>
                   <td className="px-6 py-4">
-                    <RecordNameDetails name={item.fullName} email={item.email} phone={item.phone} province={item.province} municipality={item.municipality} neighborhood={item.neighborhood} relationshipLabel="Coordinador" relationshipValue={item.coordinatorName} />
+                    <RecordNameDetails name={item.fullName} alias={item.alias} nationalId={item.nationalId} email={item.email} phone={item.phone} province={item.province} municipality={item.municipality} neighborhood={item.neighborhood} relationshipLabel="Coordinador" relationshipValue={item.coordinatorName} />
                     <p className="text-xs text-[var(--muted-foreground)]">
                       {item.email || "Sin correo"} · {item.phone || "Sin telefono"}
                     </p>

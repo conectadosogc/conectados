@@ -203,6 +203,21 @@ export default async function RegistroAvanzadoPage(props: PageProps<"/registro-a
                   minLength={4}
                   maxLength={80}
                 />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <input
+                    name="alias"
+                    placeholder="Apodo o alias (opcional)"
+                    className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
+                    maxLength={60}
+                  />
+                  <input
+                    name="nationalId"
+                    placeholder="Cedula (000-0000000-0)"
+                    className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
+                    inputMode="numeric"
+                    required
+                  />
+                </div>
                 <div className="lg:col-span-2">
                   <RdLocationField initialZone={selectedDirigente.zone} />
                 </div>
@@ -256,6 +271,21 @@ export default async function RegistroAvanzadoPage(props: PageProps<"/registro-a
                 minLength={4}
                 maxLength={80}
               />
+              <div className="grid gap-4 md:grid-cols-2">
+                <input
+                  name="alias"
+                  placeholder="Apodo o alias (opcional)"
+                  className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
+                  maxLength={60}
+                />
+                <input
+                  name="nationalId"
+                  placeholder="Cedula (000-0000000-0)"
+                  className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
+                  inputMode="numeric"
+                  required
+                />
+              </div>
               <div className="lg:col-span-2">
                 <RdLocationField initialZone={selectedCoordinator.zone} />
               </div>

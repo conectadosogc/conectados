@@ -21,6 +21,8 @@ import { prisma } from "@/lib/prisma";
 export type CoordinatorRecord = CoordinatorItem & {
   email?: string | null;
   phone?: string | null;
+  alias?: string | null;
+  nationalId?: string | null;
   notes?: string | null;
 };
 
@@ -28,12 +30,16 @@ export type DirigenteRecord = DirigenteItem & {
   coordinatorId?: string;
   email?: string | null;
   phone?: string | null;
+  alias?: string | null;
+  nationalId?: string | null;
 };
 
 export type MemberRecord = MemberItem & {
   dirigenteId?: string | null;
   email?: string | null;
   phone?: string | null;
+  alias?: string | null;
+  nationalId?: string | null;
 };
 
 export type EventRecord = EventItem & {
@@ -265,6 +271,8 @@ export async function getAppSnapshot(): Promise<AppSnapshot> {
         ),
         email: coordinator.email,
         phone: coordinator.phone,
+        alias: coordinator.alias,
+        nationalId: coordinator.nationalId,
         notes: coordinator.notes,
       })),
       dirigentes: scopedDirigentes.map((dirigente) => ({
@@ -280,6 +288,8 @@ export async function getAppSnapshot(): Promise<AppSnapshot> {
         memberCount: dirigente.members.length,
         email: dirigente.email,
         phone: dirigente.phone,
+        alias: dirigente.alias,
+        nationalId: dirigente.nationalId,
       })),
       members: scopedMembers.map((member) => ({
         id: member.id,
@@ -294,6 +304,8 @@ export async function getAppSnapshot(): Promise<AppSnapshot> {
         isMilitant: member.isMilitant,
         email: member.email,
         phone: member.phone,
+        alias: member.alias,
+        nationalId: member.nationalId,
       })),
       events: scopedEvents.map((event) => ({
         id: event.id,

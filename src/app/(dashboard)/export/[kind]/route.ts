@@ -62,7 +62,8 @@ export async function GET(
       municipio: item.municipality,
       barrio: item.neighborhood,
       zona: item.zone,
-      meta_miembros: item.targetMembers,
+      alias: item.alias ?? "",
+      cedula: item.nationalId ?? "",
       dirigentes: item.dirigenteCount,
       miembros: item.memberCount,
       notas: item.notes,
@@ -74,6 +75,8 @@ export async function GET(
     const rows = (await getDirigenteRecords(filters)).map((item) => ({
       codigo: item.code,
       nombre: item.fullName,
+      alias: item.alias ?? "",
+      cedula: item.nationalId ?? "",
       correo: item.email,
       telefono: item.phone,
       coordinador: item.coordinatorName,
@@ -139,6 +142,8 @@ export async function GET(
   const rows = (await getMemberRecords(filters)).map((item) => ({
     codigo: item.code,
     nombre: item.fullName,
+    alias: item.alias ?? "",
+    cedula: item.nationalId ?? "",
     correo: item.email,
     telefono: item.phone,
     dirigente: item.dirigenteName,

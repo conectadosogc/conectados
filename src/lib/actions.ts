@@ -58,6 +58,43 @@ function normalizeDominicanPhone(value: string) {
   return `+1 ${localDigits.slice(0, 3)} ${localDigits.slice(3, 6)} ${localDigits.slice(6)}`;
 }
 
+function normalizeDominicanNationalId(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length !== 11) {
+    throw new Error("Cedula invalida. Debe tener 11 digitos.");
+  }
+
+  const checksum = digits.slice(0, 10).split("").reduce((total, digit, index) => {
+    const product = Number(digit) * (index % 2 === 0 ? 1 : 2);
+    return total + (product > 9 ? product - 9 : product);
+  }, 0);
+  const verifier = (10 - (checksum % 10)) % 10;
+
+  if (verifier !== Number(digits[10])) {
+    throw new Error("Cedula invalida. Verifica el digito verificador.");
+  }
+
+  return `${digits.slice(0, 3)}-${digits.slice(3, 10)}-${digits.slice(10)}`;
+}
+
+async function assertNationalIdAvailable(
+  nationalId: string,
+  current?: { type: "coordinator" | "dirigente" | "member"; id: string },
+) {
+  const [coordinator, dirigente, member] = await Promise.all([
+    prisma.coordinator.findUnique({ where: { nationalId }, select: { id: true } }),
+    prisma.dirigente.findUnique({ where: { nationalId }, select: { id: true } }),
+    prisma.member.findUnique({ where: { nationalId }, select: { id: true } }),
+  ]);
+
+  const conflict =
+    (coordinator && (current?.type !== "coordinator" || current.id !== coordinator.id)) ||
+    (dirigente && (current?.type !== "dirigente" || current.id !== dirigente.id)) ||
+    (member && (current?.type !== "member" || current.id !== member.id));
+
+  assert(!conflict, "La cedula ya esta registrada en el sistema.");
+}
+
 function normalizeLocationName(value: string) {
   return value
     .normalize("NFD")
@@ -322,16 +359,20 @@ export async function createCoordinator(
     const location = await getStructuredLocation(formData);
     const email = clean(formData.get("email")).toLowerCase();
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));
-    const targetMembers = toInt(formData.get("targetMembers"));
+    const alias = clean(formData.get("alias"));
+    const nationalId = normalizeDominicanNationalId(clean(formData.get("nationalId")));
 
     assert(fullName.length >= 4, "Nombre demasiado corto.");
-    assert(targetMembers >= 0, "Meta invalida.");
+    assert(alias.length <= 60, "El alias es demasiado largo.");
     if (email) assert(isValidEmail(email), "Correo invalido.");
+    await assertNationalIdAvailable(nationalId);
 
     await prisma.coordinator.create({
       data: {
         code: makeCode("CRD"),
         fullName,
+        alias: alias || null,
+        nationalId,
         zone: location.zone,
         province: location.province,
         municipality: location.municipality,
@@ -339,7 +380,6 @@ export async function createCoordinator(
         email: email || null,
         phone: phone || null,
         notes: clean(formData.get("notes")) || null,
-        targetMembers,
       } as never,
     });
 
@@ -361,19 +401,23 @@ export async function updateCoordinator(
     const location = await getStructuredLocation(formData);
     const email = clean(formData.get("email")).toLowerCase();
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));
-    const targetMembers = toInt(formData.get("targetMembers"));
+    const alias = clean(formData.get("alias"));
+    const nationalId = normalizeDominicanNationalId(clean(formData.get("nationalId")));
 
     assert(!!id, "Coordinador no encontrado.");
     assert(fullName.length >= 4, "Nombre demasiado corto.");
-    assert(targetMembers >= 0, "Meta invalida.");
+    assert(alias.length <= 60, "El alias es demasiado largo.");
     if (email) assert(isValidEmail(email), "Correo invalido.");
 
     await assertCoordinatorScopeAccess(id);
+    await assertNationalIdAvailable(nationalId, { type: "coordinator", id });
 
     await prisma.coordinator.update({
       where: { id },
       data: {
         fullName,
+        alias: alias || null,
+        nationalId,
         zone: location.zone,
         province: location.province,
         municipality: location.municipality,
@@ -381,7 +425,6 @@ export async function updateCoordinator(
         email: email || null,
         phone: phone || null,
         notes: clean(formData.get("notes")) || null,
-        targetMembers,
       } as never,
     });
 
@@ -407,14 +450,18 @@ export async function createDirigente(
   try {
     await requireRoles([UserRole.ADMIN, UserRole.COORDINATOR]);
     const fullName = clean(formData.get("fullName"));
+    const alias = clean(formData.get("alias"));
+    const nationalId = normalizeDominicanNationalId(clean(formData.get("nationalId")));
     const location = await getStructuredLocation(formData);
     const coordinatorId = clean(formData.get("coordinatorId"));
     const email = clean(formData.get("email")).toLowerCase();
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));
 
     assert(fullName.length >= 4, "Nombre demasiado corto.");
+    assert(alias.length <= 60, "El alias es demasiado largo.");
     assert(!!coordinatorId, "Coordinador requerido.");
     if (email) assert(isValidEmail(email), "Correo invalido.");
+    await assertNationalIdAvailable(nationalId);
 
     await assertCoordinatorScopeAccess(coordinatorId);
 
@@ -422,6 +469,8 @@ export async function createDirigente(
       data: {
         code: makeCode("DRG"),
         fullName,
+        alias: alias || null,
+        nationalId,
         zone: location.zone,
         province: location.province,
         municipality: location.municipality,
@@ -447,6 +496,8 @@ export async function updateDirigente(
     await requireRoles([UserRole.ADMIN, UserRole.COORDINATOR]);
     const id = clean(formData.get("id"));
     const fullName = clean(formData.get("fullName"));
+    const alias = clean(formData.get("alias"));
+    const nationalId = normalizeDominicanNationalId(clean(formData.get("nationalId")));
     const location = await getStructuredLocation(formData);
     const coordinatorId = clean(formData.get("coordinatorId"));
     const email = clean(formData.get("email")).toLowerCase();
@@ -454,16 +505,20 @@ export async function updateDirigente(
 
     assert(!!id, "Dirigente no encontrado.");
     assert(fullName.length >= 4, "Nombre demasiado corto.");
+    assert(alias.length <= 60, "El alias es demasiado largo.");
     assert(!!coordinatorId, "Coordinador requerido.");
     if (email) assert(isValidEmail(email), "Correo invalido.");
 
     await assertDirigenteScopeAccess(id);
+    await assertNationalIdAvailable(nationalId, { type: "dirigente", id });
     await assertCoordinatorScopeAccess(coordinatorId);
 
     await prisma.dirigente.update({
       where: { id },
       data: {
         fullName,
+        alias: alias || null,
+        nationalId,
         zone: location.zone,
         province: location.province,
         municipality: location.municipality,
@@ -497,6 +552,8 @@ export async function createMember(
   try {
     await requireRoles([UserRole.ADMIN, UserRole.COORDINATOR, UserRole.DIRIGENTE]);
     const fullName = clean(formData.get("fullName"));
+    const alias = clean(formData.get("alias"));
+    const nationalId = normalizeDominicanNationalId(clean(formData.get("nationalId")));
     const location = await getStructuredLocation(formData);
     const selectedDirigenteId = clean(formData.get("dirigenteId"));
     const isMilitant = selectedDirigenteId === "__militant__";
@@ -505,8 +562,10 @@ export async function createMember(
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));
 
     assert(fullName.length >= 4, "Nombre demasiado corto.");
+    assert(alias.length <= 60, "El alias es demasiado largo.");
     assert(isMilitant || !!dirigenteId, "Dirigente requerido.");
     if (email) assert(isValidEmail(email), "Correo invalido.");
+    await assertNationalIdAvailable(nationalId);
 
     if (isMilitant) {
       await requireRoles([UserRole.ADMIN]);
@@ -518,6 +577,8 @@ export async function createMember(
       data: {
         code: makeCode("MBR"),
         fullName,
+        alias: alias || null,
+        nationalId,
         zone: location.zone,
         province: location.province,
         municipality: location.municipality,
@@ -544,6 +605,8 @@ export async function updateMember(
     await requireRoles([UserRole.ADMIN, UserRole.COORDINATOR, UserRole.DIRIGENTE]);
     const id = clean(formData.get("id"));
     const fullName = clean(formData.get("fullName"));
+    const alias = clean(formData.get("alias"));
+    const nationalId = normalizeDominicanNationalId(clean(formData.get("nationalId")));
     const location = await getStructuredLocation(formData);
     const selectedDirigenteId = clean(formData.get("dirigenteId"));
     const isMilitant = selectedDirigenteId === "__militant__";
@@ -553,10 +616,12 @@ export async function updateMember(
 
     assert(!!id, "Miembro no encontrado.");
     assert(fullName.length >= 4, "Nombre demasiado corto.");
+    assert(alias.length <= 60, "El alias es demasiado largo.");
     assert(isMilitant || !!dirigenteId, "Dirigente requerido.");
     if (email) assert(isValidEmail(email), "Correo invalido.");
 
     await assertMemberScopeAccess(id);
+    await assertNationalIdAvailable(nationalId, { type: "member", id });
     if (isMilitant) {
       await requireRoles([UserRole.ADMIN]);
     } else {
@@ -567,6 +632,8 @@ export async function updateMember(
       where: { id },
       data: {
         fullName,
+        alias: alias || null,
+        nationalId,
         zone: location.zone,
         province: location.province,
         municipality: location.municipality,

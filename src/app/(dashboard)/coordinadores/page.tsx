@@ -68,7 +68,7 @@ export default async function CoordinadoresPage(props: PageProps<"/coordinadores
           description={
             selected
               ? "Actualiza zona, meta y datos de contacto del coordinador seleccionado."
-              : "Alta directa de un coordinador con zona, meta y datos de contacto."
+              : "Alta directa de un coordinador con zona y datos de contacto."
           }
         >
           <ActionForm
@@ -85,6 +85,21 @@ export default async function CoordinadoresPage(props: PageProps<"/coordinadores
               minLength={4}
               maxLength={80}
             />
+            <input
+              name="alias"
+              placeholder="Apodo o alias (opcional)"
+              defaultValue={selected?.alias ?? ""}
+              className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
+              maxLength={60}
+            />
+            <input
+              name="nationalId"
+              placeholder="Cedula (000-0000000-0)"
+              defaultValue={selected?.nationalId ?? ""}
+              className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
+              inputMode="numeric"
+              required
+            />
             <div className="lg:col-span-2">
               <RdLocationField initialZone={selected?.zone} />
             </div>
@@ -96,14 +111,6 @@ export default async function CoordinadoresPage(props: PageProps<"/coordinadores
               className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
             />
             <DoPhoneField defaultValue={selected?.phone} />
-            <input
-              name="targetMembers"
-              type="number"
-              min="0"
-              placeholder="Meta de miembros"
-              defaultValue={selected?.targetMembers ?? 0}
-              className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
-            />
             <input
               name="notes"
               placeholder="Notas"
@@ -160,7 +167,7 @@ export default async function CoordinadoresPage(props: PageProps<"/coordinadores
                 <tr key={item.id} className="border-t border-[var(--line)] text-sm">
                   <td className="px-6 py-4 text-[var(--muted-foreground)]">{item.code}</td>
                   <td className="px-6 py-4">
-                    <RecordNameDetails name={item.fullName} email={item.email} phone={item.phone} province={item.province} municipality={item.municipality} neighborhood={item.neighborhood} relationshipLabel="Meta" relationshipValue={`${item.targetMembers} miembros`} notes={item.notes} />
+                    <RecordNameDetails name={item.fullName} alias={item.alias} nationalId={item.nationalId} email={item.email} phone={item.phone} province={item.province} municipality={item.municipality} neighborhood={item.neighborhood} relationshipLabel="Estructura" relationshipValue={`${item.dirigenteCount} dirigentes | ${item.memberCount} miembros`} notes={item.notes} />
                     <p className="text-xs text-[var(--muted-foreground)]">
                       {item.email || "Sin correo"} · {item.phone || "Sin telefono"}
                     </p>

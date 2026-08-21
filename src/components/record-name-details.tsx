@@ -1,5 +1,7 @@
 type RecordNameDetailsProps = {
   name: string;
+  alias?: string | null;
+  nationalId?: string | null;
   email?: string | null;
   phone?: string | null;
   province?: string | null;
@@ -12,6 +14,8 @@ type RecordNameDetailsProps = {
 
 export function RecordNameDetails({
   name,
+  alias,
+  nationalId,
   email,
   phone,
   province,
@@ -33,6 +37,8 @@ export function RecordNameDetails({
         </span>
       </summary>
       <div className="mt-3 grid gap-3 rounded-[8px] border border-[var(--line)] bg-[var(--surface-strong)] p-3 text-xs leading-5 text-[var(--muted-foreground)]">
+        {alias ? <p><span className="font-semibold text-[var(--foreground)]">Alias: </span>{alias}</p> : null}
+        <p><span className="font-semibold text-[var(--foreground)]">Cedula: </span>{nationalId || "Sin cedula registrada"}</p>
         <p><span className="font-semibold text-[var(--foreground)]">Correo: </span>{email || "Sin correo registrado"}</p>
         <p><span className="font-semibold text-[var(--foreground)]">Telefono: </span>{phone || "Sin telefono registrado"}</p>
         <p><span className="font-semibold text-[var(--foreground)]">Ubicacion: </span>{location || "Sin ubicacion detallada"}</p>
