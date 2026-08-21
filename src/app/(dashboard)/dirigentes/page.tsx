@@ -7,6 +7,7 @@ import { DoPhoneField } from "@/components/do-phone-field";
 import { InlineCreateCard } from "@/components/inline-create-card";
 import { PageHeader } from "@/components/page-header";
 import { RdLocationField } from "@/components/rd-location-field";
+import { RecordNameDetails } from "@/components/record-name-details";
 import { SearchForm } from "@/components/search-form";
 import { SubmitButton } from "@/components/submit-button";
 import { TerritoryFilterForm } from "@/components/territory-filter-form";
@@ -155,7 +156,7 @@ export default async function DirigentesPage(props: PageProps<"/dirigentes">) {
                 <tr key={item.id} className="border-t border-[var(--line)] text-sm">
                   <td className="px-6 py-4 text-[var(--muted-foreground)]">{item.code}</td>
                   <td className="px-6 py-4">
-                    <p className="font-semibold text-[var(--foreground)]">{item.fullName}</p>
+                    <RecordNameDetails name={item.fullName} email={item.email} phone={item.phone} province={item.province} municipality={item.municipality} neighborhood={item.neighborhood} relationshipLabel="Coordinador" relationshipValue={item.coordinatorName} />
                     <p className="text-xs text-[var(--muted-foreground)]">
                       {item.email || "Sin correo"} · {item.phone || "Sin telefono"}
                     </p>
