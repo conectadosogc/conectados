@@ -58,7 +58,16 @@ function normalizeDominicanPhone(value: string) {
   return `+1 ${localDigits.slice(0, 3)} ${localDigits.slice(3, 6)} ${localDigits.slice(6)}`;
 }
 
-function getStructuredLocation(formData: FormData) {
+function normalizeLocationName(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("es-DO")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function getStructuredLocation(formData: FormData) {
   const province = clean(formData.get("provinceName"));
   const municipality = clean(formData.get("municipalityName"));
   const neighborhoodName = clean(formData.get("neighborhoodName"));
@@ -68,12 +77,55 @@ function getStructuredLocation(formData: FormData) {
 
   assert(zone.length >= 2, "Zona invalida.");
 
+  if (province && municipality && neighborhoodCustom) {
+    await prisma.customNeighborhood.upsert({
+      where: {
+        province_municipality_normalizedName: {
+          province,
+          municipality,
+          normalizedName: normalizeLocationName(neighborhoodCustom),
+        },
+      },
+      update: {},
+      create: {
+        province,
+        municipality,
+        name: neighborhoodCustom,
+        normalizedName: normalizeLocationName(neighborhoodCustom),
+      },
+    });
+  }
+
   return {
     zone,
     province: province || null,
     municipality: municipality || null,
     neighborhood,
   };
+}
+
+export async function getCustomNeighborhoods(province: string, municipality: string) {
+  await requireRoles([
+    UserRole.ADMIN,
+    UserRole.COORDINATOR,
+    UserRole.DIRIGENTE,
+    UserRole.MEMBER,
+  ]);
+
+  const safeProvince = province.trim();
+  const safeMunicipality = municipality.trim();
+  if (!safeProvince || !safeMunicipality) return [];
+
+  const neighborhoods = await prisma.customNeighborhood.findMany({
+    where: {
+      province: safeProvince,
+      municipality: safeMunicipality,
+    },
+    select: { name: true },
+    orderBy: { name: "asc" },
+  });
+
+  return neighborhoods.map((item) => item.name);
 }
 
 function assert(condition: unknown, message: string) {
@@ -261,7 +313,7 @@ export async function createCoordinator(
   try {
     await requireRoles([UserRole.ADMIN]);
     const fullName = clean(formData.get("fullName"));
-    const location = getStructuredLocation(formData);
+    const location = await getStructuredLocation(formData);
     const email = clean(formData.get("email")).toLowerCase();
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));
     const targetMembers = toInt(formData.get("targetMembers"));
@@ -300,7 +352,7 @@ export async function updateCoordinator(
     await requireRoles([UserRole.ADMIN, UserRole.COORDINATOR]);
     const id = clean(formData.get("id"));
     const fullName = clean(formData.get("fullName"));
-    const location = getStructuredLocation(formData);
+    const location = await getStructuredLocation(formData);
     const email = clean(formData.get("email")).toLowerCase();
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));
     const targetMembers = toInt(formData.get("targetMembers"));
@@ -349,7 +401,7 @@ export async function createDirigente(
   try {
     await requireRoles([UserRole.ADMIN, UserRole.COORDINATOR]);
     const fullName = clean(formData.get("fullName"));
-    const location = getStructuredLocation(formData);
+    const location = await getStructuredLocation(formData);
     const coordinatorId = clean(formData.get("coordinatorId"));
     const email = clean(formData.get("email")).toLowerCase();
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));
@@ -389,7 +441,7 @@ export async function updateDirigente(
     await requireRoles([UserRole.ADMIN, UserRole.COORDINATOR]);
     const id = clean(formData.get("id"));
     const fullName = clean(formData.get("fullName"));
-    const location = getStructuredLocation(formData);
+    const location = await getStructuredLocation(formData);
     const coordinatorId = clean(formData.get("coordinatorId"));
     const email = clean(formData.get("email")).toLowerCase();
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));
@@ -439,7 +491,7 @@ export async function createMember(
   try {
     await requireRoles([UserRole.ADMIN, UserRole.COORDINATOR, UserRole.DIRIGENTE]);
     const fullName = clean(formData.get("fullName"));
-    const location = getStructuredLocation(formData);
+    const location = await getStructuredLocation(formData);
     const dirigenteId = clean(formData.get("dirigenteId"));
     const email = clean(formData.get("email")).toLowerCase();
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));
@@ -479,7 +531,7 @@ export async function updateMember(
     await requireRoles([UserRole.ADMIN, UserRole.COORDINATOR, UserRole.DIRIGENTE]);
     const id = clean(formData.get("id"));
     const fullName = clean(formData.get("fullName"));
-    const location = getStructuredLocation(formData);
+    const location = await getStructuredLocation(formData);
     const dirigenteId = clean(formData.get("dirigenteId"));
     const email = clean(formData.get("email")).toLowerCase();
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));

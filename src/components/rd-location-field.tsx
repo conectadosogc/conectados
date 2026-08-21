@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import rdLocations from "@/data/rd-locations.json";
+import { getCustomNeighborhoods } from "@/lib/actions";
 
 type Municipality = {
   name: string;
@@ -50,7 +51,18 @@ export function RdLocationField({
   const [province, setProvince] = useState(parsed.province);
   const [municipality, setMunicipality] = useState(parsed.municipality);
   const [neighborhood, setNeighborhood] = useState(parsed.neighborhood);
-  const [customNeighborhood, setCustomNeighborhood] = useState("");
+  const [customNeighborhood, setCustomNeighborhood] = useState(() => {
+    const initialProvince = locations.find((item) => item.name === parsed.province);
+    const initialMunicipality = initialProvince?.municipalities.find(
+      (item) => item.name === parsed.municipality,
+    );
+    return initialMunicipality?.neighborhoods.includes(parsed.neighborhood) ? "" : parsed.neighborhood;
+  });
+  const [isCustomNeighborhood, setIsCustomNeighborhood] = useState(() => !!customNeighborhood);
+  const [savedNeighborhoods, setSavedNeighborhoods] = useState({
+    key: "",
+    items: [] as string[],
+  });
 
   const selectedProvince = useMemo(
     () => locations.find((item) => item.name === province) ?? null,
@@ -59,15 +71,39 @@ export function RdLocationField({
 
   const municipalities = selectedProvince?.municipalities ?? [];
   const selectedMunicipality = municipalities.find((item) => item.name === municipality) ?? null;
-  const neighborhoods = selectedMunicipality?.neighborhoods ?? [];
-  const effectiveNeighborhood = neighborhoods.length
-    ? neighborhood
-    : customNeighborhood.trim();
+  const locationKey = province && municipality ? `${province}::${municipality}` : "";
+  const neighborhoods = useMemo(() => {
+    const customItems = savedNeighborhoods.key === locationKey ? savedNeighborhoods.items : [];
+    const items = [...(selectedMunicipality?.neighborhoods ?? []), ...customItems];
+    if (neighborhood && !items.some((item) => item === neighborhood)) {
+      items.push(neighborhood);
+    }
+    return [...new Set(items)];
+  }, [locationKey, neighborhood, savedNeighborhoods, selectedMunicipality]);
+  const effectiveNeighborhood = isCustomNeighborhood ? customNeighborhood.trim() : neighborhood;
 
   const zoneValue = [province, municipality, effectiveNeighborhood]
     .filter((item) => item && item.trim().length > 0)
     .join(" / ");
   const mustSelectStructuredZone = required && !parsed.custom;
+
+  useEffect(() => {
+    let active = true;
+
+    if (!province || !municipality) return undefined;
+
+    void getCustomNeighborhoods(province, municipality)
+      .then((items) => {
+        if (active) setSavedNeighborhoods({ key: locationKey, items });
+      })
+      .catch(() => {
+        if (active) setSavedNeighborhoods({ key: locationKey, items: [] });
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [locationKey, municipality, province]);
 
   return (
     <div className="grid gap-4 lg:grid-cols-3">
@@ -86,6 +122,7 @@ export function RdLocationField({
             setMunicipality("");
             setNeighborhood("");
             setCustomNeighborhood("");
+            setIsCustomNeighborhood(false);
           }}
           className="w-full rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--foreground)]"
         >
@@ -111,6 +148,7 @@ export function RdLocationField({
             setMunicipality(event.target.value);
             setNeighborhood("");
             setCustomNeighborhood("");
+            setIsCustomNeighborhood(false);
           }}
           className="w-full rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--foreground)] disabled:opacity-60"
         >
@@ -127,32 +165,37 @@ export function RdLocationField({
         <label className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--muted-foreground)]">
           Barrio o sector
         </label>
-        {neighborhoods.length ? (
-          <select
-            name="neighborhoodName"
-            value={neighborhood}
-            disabled={!municipality}
-            onChange={(event) => setNeighborhood(event.target.value)}
-            className="w-full rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--foreground)] disabled:opacity-60"
-          >
-            <option value="">Selecciona barrio o sector</option>
-            {neighborhoods.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        ) : (
+        <select
+          name={isCustomNeighborhood ? undefined : "neighborhoodName"}
+          value={isCustomNeighborhood ? "__custom__" : neighborhood}
+          disabled={!municipality}
+          onChange={(event) => {
+            const value = event.target.value;
+            const isCustom = value === "__custom__";
+            setIsCustomNeighborhood(isCustom);
+            setNeighborhood(isCustom ? "" : value);
+            if (!isCustom) setCustomNeighborhood("");
+          }}
+          className="w-full rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--foreground)] disabled:opacity-60"
+        >
+          <option value="">Selecciona barrio o sector</option>
+          {neighborhoods.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+          <option value="__custom__">Agregar otro barrio o sector</option>
+        </select>
+        {isCustomNeighborhood ? (
           <input
             name="neighborhoodCustom"
             value={customNeighborhood}
             onChange={(event) => setCustomNeighborhood(event.target.value)}
-            placeholder="Barrio o sector"
-            disabled={!municipality}
-            className="w-full rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--foreground)] disabled:opacity-60"
+            placeholder="Escribe el barrio o sector"
+            className="mt-2 w-full rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--foreground)]"
             maxLength={80}
           />
-        )}
+        ) : null}
       </div>
 
       {parsed.custom && !zoneValue ? (

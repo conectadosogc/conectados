@@ -17,11 +17,11 @@ export default async function LoginPage() {
           <div className="flex items-center bg-[linear-gradient(160deg,#223684_0%,#2740b0_72%,#3a53c4_100%)] px-8 py-10 text-white lg:px-12">
             <div className="w-full max-w-md">
               <BrandLogo
-                className="mx-auto h-28 w-full max-w-[500px] justify-center sm:h-32"
+                className="mx-auto h-40 w-full max-w-[560px] justify-center sm:h-48"
                 tone="light"
               />
 
-              <div className="mt-10">
+              <div className="mt-7">
                 <h1 className="max-w-[10ch] font-display text-4xl font-semibold leading-[0.98] tracking-tight lg:text-[4.2rem]">
                   Acceso al sistema
                 </h1>
