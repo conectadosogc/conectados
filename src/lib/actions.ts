@@ -95,6 +95,29 @@ async function assertNationalIdAvailable(
   assert(!conflict, "La cedula ya esta registrada en el sistema.");
 }
 
+async function assertUserRoleBinding(role: UserRole, email: string) {
+  if (role === UserRole.ADMIN) return;
+
+  const record =
+    role === UserRole.COORDINATOR
+      ? await prisma.coordinator.findUnique({ where: { email }, select: { id: true } })
+      : role === UserRole.DIRIGENTE
+        ? await prisma.dirigente.findUnique({ where: { email }, select: { id: true } })
+        : await prisma.member.findUnique({ where: { email }, select: { id: true } });
+
+  const roleName =
+    role === UserRole.COORDINATOR
+      ? "coordinador"
+      : role === UserRole.DIRIGENTE
+        ? "dirigente"
+        : "miembro";
+
+  assert(
+    record,
+    `Primero registra el ${roleName} con este mismo correo para poder crear su cuenta.`,
+  );
+}
+
 async function nextTerritoryCode(
   prefix: RecordCodePrefix,
   province: string | null,
@@ -829,6 +852,8 @@ export async function createUser(
       ? (roleValue as UserRole)
       : UserRole.MEMBER;
 
+    await assertUserRoleBinding(role, email);
+
     await prisma.user.create({
       data: {
         name,
@@ -864,6 +889,8 @@ export async function updateUser(
     const role = Object.values(UserRole).includes(roleValue as UserRole)
       ? (roleValue as UserRole)
       : UserRole.MEMBER;
+
+    await assertUserRoleBinding(role, email);
 
     await prisma.user.update({
       where: { id },

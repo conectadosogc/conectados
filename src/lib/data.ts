@@ -168,9 +168,23 @@ function getDemoSnapshot(): AppSnapshot {
   };
 }
 
+function getRestrictedFallbackSnapshot(): AppSnapshot {
+  const demo = getDemoSnapshot();
+  return {
+    ...demo,
+    coordinators: [],
+    dirigentes: [],
+    members: [],
+    events: [],
+    users: [],
+    accessRequests: [],
+  };
+}
+
 export async function getAppSnapshot(): Promise<AppSnapshot> {
+  const accessScope = await getAccessScope();
+
   try {
-    const accessScope = await getAccessScope();
     const [coordinators, dirigentes, members, events, users, organizationProfile, accessRequests] =
       await Promise.all([
         prisma.coordinator.findMany({
@@ -350,7 +364,9 @@ export async function getAppSnapshot(): Promise<AppSnapshot> {
       source: "database",
     };
   } catch {
-    return getDemoSnapshot();
+    return accessScope?.user.role === UserRole.ADMIN
+      ? getDemoSnapshot()
+      : getRestrictedFallbackSnapshot();
   }
 }
 
