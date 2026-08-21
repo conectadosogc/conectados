@@ -20,7 +20,7 @@ export function InlineCreateCard({
             <p className="mt-1 text-sm text-[var(--muted-foreground)]">{description}</p>
           </div>
           <span className="rounded-[8px] bg-[var(--indigo-soft)] px-3 py-1 text-xs font-semibold text-[var(--indigo-700)]">
-            Abrir
+            Crear
           </span>
         </div>
       </summary>
