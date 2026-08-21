@@ -88,11 +88,12 @@ export default async function MiembrosPage(props: PageProps<"/miembros">) {
             name="dirigenteId"
             className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
             required
-            defaultValue={selected?.dirigenteId ?? ""}
+            defaultValue={selected?.isMilitant ? "__militant__" : selected?.dirigenteId ?? ""}
           >
             <option value="" disabled>
               Selecciona dirigente
             </option>
+            <option value="__militant__">Militante independiente (sin dirigente)</option>
             {snapshot.dirigentes.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.fullName} · {item.zone}
@@ -145,7 +146,7 @@ export default async function MiembrosPage(props: PageProps<"/miembros">) {
               <tr className="text-xs uppercase tracking-[0.28em] text-[var(--muted-foreground)]">
                 <th className="px-6 py-4 font-semibold">Codigo</th>
                 <th className="px-6 py-4 font-semibold">Nombre</th>
-                <th className="px-6 py-4 font-semibold">Dirigente</th>
+                <th className="px-6 py-4 font-semibold">Dirigente / tipo</th>
                 <th className="px-6 py-4 font-semibold">Zona</th>
                 <th className="px-6 py-4 font-semibold">Accion</th>
               </tr>
@@ -155,12 +156,12 @@ export default async function MiembrosPage(props: PageProps<"/miembros">) {
                 <tr key={item.id} className="border-t border-[var(--line)] text-sm">
                   <td className="px-6 py-4 text-[var(--muted-foreground)]">{item.code}</td>
                   <td className="px-6 py-4">
-                    <RecordNameDetails name={item.fullName} email={item.email} phone={item.phone} province={item.province} municipality={item.municipality} neighborhood={item.neighborhood} relationshipLabel="Dirigente" relationshipValue={item.dirigenteName} />
+                    <RecordNameDetails name={item.fullName} email={item.email} phone={item.phone} province={item.province} municipality={item.municipality} neighborhood={item.neighborhood} relationshipLabel={item.isMilitant ? "Condicion" : "Dirigente"} relationshipValue={item.isMilitant ? "Militante independiente" : item.dirigenteName} />
                     <p className="text-xs text-[var(--muted-foreground)]">
                       {item.email || "Sin correo"} · {item.phone || "Sin telefono"}
                     </p>
                   </td>
-                  <td className="px-6 py-4 text-[var(--muted-foreground)]">{item.dirigenteName}</td>
+                  <td className="px-6 py-4 text-[var(--muted-foreground)]">{item.isMilitant ? "Militante" : item.dirigenteName}</td>
                   <td className="px-6 py-4 text-[var(--muted-foreground)]">{item.zone}</td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">

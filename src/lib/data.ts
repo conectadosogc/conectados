@@ -31,7 +31,7 @@ export type DirigenteRecord = DirigenteItem & {
 };
 
 export type MemberRecord = MemberItem & {
-  dirigenteId?: string;
+  dirigenteId?: string | null;
   email?: string | null;
   phone?: string | null;
 };
@@ -225,7 +225,7 @@ export async function getAppSnapshot(): Promise<AppSnapshot> {
     const scopedMembers = members.filter((member) => {
       if (role === UserRole.ADMIN) return true;
       if (role === UserRole.COORDINATOR) {
-        return member.dirigente.coordinatorId === scopedCoordinatorId;
+        return member.dirigente?.coordinatorId === scopedCoordinatorId;
       }
       if (role === UserRole.DIRIGENTE) return member.dirigenteId === scopedDirigenteId;
       return false;
@@ -289,8 +289,9 @@ export async function getAppSnapshot(): Promise<AppSnapshot> {
         province: member.province,
         municipality: member.municipality,
         neighborhood: member.neighborhood,
-        dirigenteName: member.dirigente.fullName,
+        dirigenteName: member.dirigente?.fullName ?? "Militante independiente",
         dirigenteId: member.dirigenteId,
+        isMilitant: member.isMilitant,
         email: member.email,
         phone: member.phone,
       })),

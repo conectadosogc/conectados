@@ -231,6 +231,12 @@ async function assertMemberScopeAccess(memberId: string) {
     throw new Error("Miembro no encontrado.");
   }
 
+  if (!member.dirigenteId) {
+    const { scope } = await getActorScope();
+    if (scope.user.role === UserRole.ADMIN) return;
+    throw new Error("No tienes permiso para operar sobre un militante independiente.");
+  }
+
   await assertDirigenteScopeAccess(member.dirigenteId);
 }
 
@@ -492,15 +498,21 @@ export async function createMember(
     await requireRoles([UserRole.ADMIN, UserRole.COORDINATOR, UserRole.DIRIGENTE]);
     const fullName = clean(formData.get("fullName"));
     const location = await getStructuredLocation(formData);
-    const dirigenteId = clean(formData.get("dirigenteId"));
+    const selectedDirigenteId = clean(formData.get("dirigenteId"));
+    const isMilitant = selectedDirigenteId === "__militant__";
+    const dirigenteId = isMilitant ? null : selectedDirigenteId;
     const email = clean(formData.get("email")).toLowerCase();
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));
 
     assert(fullName.length >= 4, "Nombre demasiado corto.");
-    assert(!!dirigenteId, "Dirigente requerido.");
+    assert(isMilitant || !!dirigenteId, "Dirigente requerido.");
     if (email) assert(isValidEmail(email), "Correo invalido.");
 
-    await assertDirigenteScopeAccess(dirigenteId);
+    if (isMilitant) {
+      await requireRoles([UserRole.ADMIN]);
+    } else {
+      await assertDirigenteScopeAccess(dirigenteId as string);
+    }
 
     await prisma.member.create({
       data: {
@@ -511,6 +523,7 @@ export async function createMember(
         municipality: location.municipality,
         neighborhood: location.neighborhood,
         dirigenteId,
+        isMilitant,
         email: email || null,
         phone: phone || null,
       } as never,
@@ -532,17 +545,23 @@ export async function updateMember(
     const id = clean(formData.get("id"));
     const fullName = clean(formData.get("fullName"));
     const location = await getStructuredLocation(formData);
-    const dirigenteId = clean(formData.get("dirigenteId"));
+    const selectedDirigenteId = clean(formData.get("dirigenteId"));
+    const isMilitant = selectedDirigenteId === "__militant__";
+    const dirigenteId = isMilitant ? null : selectedDirigenteId;
     const email = clean(formData.get("email")).toLowerCase();
     const phone = normalizeDominicanPhone(clean(formData.get("phone")));
 
     assert(!!id, "Miembro no encontrado.");
     assert(fullName.length >= 4, "Nombre demasiado corto.");
-    assert(!!dirigenteId, "Dirigente requerido.");
+    assert(isMilitant || !!dirigenteId, "Dirigente requerido.");
     if (email) assert(isValidEmail(email), "Correo invalido.");
 
     await assertMemberScopeAccess(id);
-    await assertDirigenteScopeAccess(dirigenteId);
+    if (isMilitant) {
+      await requireRoles([UserRole.ADMIN]);
+    } else {
+      await assertDirigenteScopeAccess(dirigenteId as string);
+    }
 
     await prisma.member.update({
       where: { id },
@@ -553,6 +572,7 @@ export async function updateMember(
         municipality: location.municipality,
         neighborhood: location.neighborhood,
         dirigenteId,
+        isMilitant,
         email: email || null,
         phone: phone || null,
       } as never,

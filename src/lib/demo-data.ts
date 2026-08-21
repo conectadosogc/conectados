@@ -39,6 +39,7 @@ export type MemberItem = {
   municipality?: string | null;
   neighborhood?: string | null;
   dirigenteName: string;
+  isMilitant?: boolean;
 };
 
 export type EventItem = {

@@ -83,19 +83,20 @@ model Dirigente {
 }
 
 model Member {
-  id          String    @id @default(cuid())
-  code        String    @unique
-  fullName    String
-  email       String?   @unique
-  phone       String?
-  zone        String
-  province    String?
+  id           String     @id @default(cuid())
+  code         String     @unique
+  fullName     String
+  email        String?    @unique
+  phone        String?
+  zone         String
+  province     String?
   municipality String?
   neighborhood String?
-  dirigenteId String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  dirigente   Dirigente @relation(fields: [dirigenteId], references: [id], onDelete: Cascade)
+  isMilitant   Boolean    @default(false)
+  dirigenteId  String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  dirigente    Dirigente? @relation(fields: [dirigenteId], references: [id], onDelete: Cascade)
 }
 
 model Event {
