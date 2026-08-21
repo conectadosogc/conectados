@@ -77,6 +77,13 @@ function normalizeDominicanNationalId(value: string) {
   return `${digits.slice(0, 3)}-${digits.slice(3, 10)}-${digits.slice(10)}`;
 }
 
+function generateTemporaryPassword() {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  const values = crypto.getRandomValues(new Uint8Array(12));
+  const token = Array.from(values, (value) => alphabet[value % alphabet.length]).join("");
+  return `Cc-${token}`;
+}
+
 async function assertNationalIdAvailable(
   nationalId: string,
   current?: { type: "coordinator" | "dirigente" | "member"; id: string },
@@ -407,33 +414,63 @@ export async function createCoordinator(
 
     assert(fullName.length >= 4, "Nombre demasiado corto.");
     assert(alias.length <= 60, "El alias es demasiado largo.");
-    if (email) assert(isValidEmail(email), "Correo invalido.");
+    assert(isValidEmail(email), "Correo requerido para crear el acceso del coordinador.");
     await assertNationalIdAvailable(nationalId);
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, role: true },
+    });
+    assert(
+      !existingUser || existingUser.role === UserRole.COORDINATOR,
+      "Ya existe una cuenta con este correo y otro rol.",
+    );
     const code = await nextTerritoryCode("CRD", location.province, location.municipality, (base) =>
       prisma.coordinator.findMany({
         where: { code: { startsWith: base } },
         select: { code: true },
       }),
     );
+    const temporaryPassword = existingUser ? null : generateTemporaryPassword();
+    const passwordHash = temporaryPassword ? await hashPassword(temporaryPassword) : null;
 
-    await prisma.coordinator.create({
-      data: {
-        code,
-        fullName,
-        alias: alias || null,
-        nationalId,
-        zone: location.zone,
-        province: location.province,
-        municipality: location.municipality,
-        neighborhood: location.neighborhood,
-        email: email || null,
-        phone: phone || null,
-        notes: clean(formData.get("notes")) || null,
-      } as never,
-    });
+    await prisma.$transaction([
+      prisma.coordinator.create({
+        data: {
+          code,
+          fullName,
+          alias: alias || null,
+          nationalId,
+          zone: location.zone,
+          province: location.province,
+          municipality: location.municipality,
+          neighborhood: location.neighborhood,
+          email,
+          phone: phone || null,
+          notes: clean(formData.get("notes")) || null,
+        } as never,
+      }),
+      ...(temporaryPassword && passwordHash
+        ? [
+            prisma.user.create({
+              data: {
+                name: fullName,
+                email,
+                passwordHash,
+                phone: phone || null,
+                role: UserRole.COORDINATOR,
+                isActive: true,
+              },
+            }),
+          ]
+        : []),
+    ]);
 
     revalidateCore();
-    return success("Coordinador guardado.");
+    return success(
+      temporaryPassword
+        ? `Coordinador y cuenta creados. Clave temporal: ${temporaryPassword}`
+        : "Coordinador guardado y vinculado a la cuenta existente.",
+    );
   } catch (error) {
     return failure(error);
   }

@@ -61,8 +61,8 @@ export function DashboardShell({
       <div className="mx-auto grid min-h-screen max-w-[1680px] gap-4 px-4 py-4 lg:grid-cols-[268px_1fr] lg:px-5 lg:py-5">
         <aside className="panel p-4">
           <div className="flex h-full flex-col">
-            <div className="panel-flat flex min-h-[132px] items-center justify-center overflow-hidden p-4">
-              <BrandLogo className="h-20 w-full justify-center [&>img]:scale-[2.8]" />
+            <div className="panel-flat flex min-h-[112px] items-center justify-center overflow-hidden p-4">
+              <BrandLogo className="h-16 w-full justify-center [&>img]:scale-[1.85]" />
             </div>
 
             {scopeBadge ? (

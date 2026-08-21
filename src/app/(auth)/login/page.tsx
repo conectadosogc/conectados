@@ -17,7 +17,7 @@ export default async function LoginPage() {
           <div className="flex items-center bg-[linear-gradient(160deg,#223684_0%,#2740b0_72%,#3a53c4_100%)] px-8 py-10 text-white lg:px-12">
             <div className="w-full max-w-md">
               <BrandLogo
-                className="mx-auto h-48 w-full max-w-[560px] justify-center overflow-hidden [&>img]:scale-[2.35] sm:h-56"
+                className="mx-auto h-44 w-full max-w-[560px] justify-center overflow-hidden [&>img]:scale-[1.35] sm:h-48"
                 tone="light"
               />
 

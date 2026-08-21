@@ -106,9 +106,10 @@ export default async function CoordinadoresPage(props: PageProps<"/coordinadores
             <input
               name="email"
               type="email"
-              placeholder="Correo"
+              placeholder="Correo para acceso"
               defaultValue={selected?.email ?? ""}
               className="rounded-[10px] border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm"
+              required
             />
             <DoPhoneField defaultValue={selected?.phone} />
             <input
