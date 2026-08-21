@@ -9,7 +9,7 @@ import { getAccessScope } from "@/lib/access-scope";
 import { deleteAvatar, persistAvatar } from "@/lib/avatar-storage";
 import { requireRoles } from "@/lib/authorization";
 import { createSession, destroySession } from "@/lib/auth";
-import { makeCode } from "@/lib/codes";
+import { makeTerritoryCode, makeTerritoryCodeBase, type RecordCodePrefix } from "@/lib/codes";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 
@@ -93,6 +93,26 @@ async function assertNationalIdAvailable(
     (member && (current?.type !== "member" || current.id !== member.id));
 
   assert(!conflict, "La cedula ya esta registrada en el sistema.");
+}
+
+async function nextTerritoryCode(
+  prefix: RecordCodePrefix,
+  province: string | null,
+  municipality: string | null,
+  findCodes: (base: string) => Promise<Array<{ code: string }>>,
+) {
+  const safeProvince = province?.trim() ?? "";
+  const safeMunicipality = municipality?.trim() ?? "";
+  assert(!!safeProvince && !!safeMunicipality, "Selecciona provincia y municipio para generar el codigo.");
+
+  const base = makeTerritoryCodeBase(prefix, safeProvince, safeMunicipality);
+  const records = await findCodes(base);
+  const sequence = records.reduce((highest, record) => {
+    const value = Number(record.code.slice(base.length + 1));
+    return Number.isInteger(value) && value > highest ? value : highest;
+  }, 0);
+
+  return makeTerritoryCode(prefix, safeProvince, safeMunicipality, sequence + 1);
 }
 
 function normalizeLocationName(value: string) {
@@ -366,10 +386,16 @@ export async function createCoordinator(
     assert(alias.length <= 60, "El alias es demasiado largo.");
     if (email) assert(isValidEmail(email), "Correo invalido.");
     await assertNationalIdAvailable(nationalId);
+    const code = await nextTerritoryCode("CRD", location.province, location.municipality, (base) =>
+      prisma.coordinator.findMany({
+        where: { code: { startsWith: base } },
+        select: { code: true },
+      }),
+    );
 
     await prisma.coordinator.create({
       data: {
-        code: makeCode("CRD"),
+        code,
         fullName,
         alias: alias || null,
         nationalId,
@@ -464,10 +490,16 @@ export async function createDirigente(
     await assertNationalIdAvailable(nationalId);
 
     await assertCoordinatorScopeAccess(coordinatorId);
+    const code = await nextTerritoryCode("DRG", location.province, location.municipality, (base) =>
+      prisma.dirigente.findMany({
+        where: { code: { startsWith: base } },
+        select: { code: true },
+      }),
+    );
 
     await prisma.dirigente.create({
       data: {
-        code: makeCode("DRG"),
+        code,
         fullName,
         alias: alias || null,
         nationalId,
@@ -572,10 +604,16 @@ export async function createMember(
     } else {
       await assertDirigenteScopeAccess(dirigenteId as string);
     }
+    const code = await nextTerritoryCode("MBR", location.province, location.municipality, (base) =>
+      prisma.member.findMany({
+        where: { code: { startsWith: base } },
+        select: { code: true },
+      }),
+    );
 
     await prisma.member.create({
       data: {
-        code: makeCode("MBR"),
+        code,
         fullName,
         alias: alias || null,
         nationalId,
